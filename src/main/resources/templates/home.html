@@ -88,7 +88,7 @@
           <div class="col-md-2">
             <label>Subject</label>
             <div class="form-group">
-              <ui-select class="form-group" ng-model="subjects.selected" ng-disabled="!target" ng-change="filterCourses(target, subjects.selected)">
+              <ui-select class="form-group" ng-model="subjects.selected" theme="bootstrap" ng-disabled="!target" ng-change="filterCourses(target, subjects.selected)">
                 <ui-select-match>{{$select.selected}}</ui-select-match>
                 <ui-select-choices repeat="item in subjects | filter: $select.search | limitTo: 400" >
                   <span ng-bind-html="item | highlight: $select.search"></span>
@@ -121,7 +121,7 @@
 <!--          </tbody>-->
 <!--        </table>-->
         <table ng-show="subjects.selected" class="table table-bordered">
-          <thead>
+          <thead class="sticky">
           <tr>
             <th scope="col" width="5%">Course</th>
             <th scope="col" width="5%">Credits</th>
@@ -129,7 +129,7 @@
           </tr>
           </thead>
           <tbody>
-            <tr data-ng-repeat="c in available">
+            <tr data-ng-repeat="c in available" ng-click="showCourse(c)" class="clickable">
               <td>{{c.subject}} {{c.courseNumber}}</td>
               <td></td>
               <td>{{c.attribute}}</td>
@@ -138,6 +138,7 @@
         </table>
       </div>
       <!-- add the main content here-->
+      <div th:replace="course :: copy"></div>
     </div>
     <!-- main content ends-->
 

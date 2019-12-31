@@ -329,3 +329,7 @@ button.redify-link {
   display: block;
   opactity: 100 !important;
 }
+
+.clickable {
+  cursor: pointer;
+}

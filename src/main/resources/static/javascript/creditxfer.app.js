@@ -47,6 +47,11 @@ function CreditxferJsController($scope, dataProvider) {
       }
     });
   }
+
+  $scope.showCourse = function(course) {
+    $scope.course = course;
+    $("#course").modal();
+  }
 }
 
 creditxferApp.factory("dataProvider", function($http, $log) {
