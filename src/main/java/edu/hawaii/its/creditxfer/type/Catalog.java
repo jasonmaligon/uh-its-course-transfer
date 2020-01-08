@@ -273,4 +273,35 @@ public class Catalog {
     public void setEquivCourseActivityDate(Date equivCourseActivityDate) {
         this.equivCourseActivityDate = equivCourseActivityDate;
     }
+
+    @Override
+    public String toString() {
+        return "Catalog [" +
+            "mifValue=" + mifValue +
+            ", sourceInstitutionCode=" + sourceInstitutionCode +
+            ", courseIdTrans=" + courseIdTrans +
+            ", subjectCodeTrans=" + subjectCodeTrans +
+            ", courseNumberTrans=" + courseNumberTrans +
+            ", courseTitleTrans=" + courseTitleTrans +
+            ", courseLowHoursTrans=" + courseLowHoursTrans +
+            ", courseHighHoursTrans=" + courseHighHoursTrans +
+            ", reviewInd=" + reviewInd +
+            ", tastCode=" + tastCode +
+            ", transMinGradeCode=" + transMinGradeCode +
+            ", transGroupPrimaryInd=" + transGroupPrimaryInd +
+            ", transGroupConnector=" + transGroupConnector +
+            ", academicPeriodStart=" + academicPeriodStart +
+            ", transCourseActivityDate=" + transCourseActivityDate +
+            ", sequenceNumber=" + sequenceNumber +
+            ", equivLeftParen=" + equivLeftParen +
+            ", connector=" + connector +
+            ", courseIdEquiv=" + courseIdEquiv +
+            ", subjectCodeEquiv=" + subjectCodeEquiv +
+            ", courseNumberEquiv=" + courseNumberEquiv +
+            ", courseTitleEquiv=" + courseTitleEquiv +
+            ", equivCreditsUsed=" + equivCreditsUsed +
+            ", equivRightParen=" + equivRightParen +
+            ", equivCourseActivityDate=" + equivCourseActivityDate +
+            "]";
+    }
 }
