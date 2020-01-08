@@ -4,11 +4,12 @@ var creditxferApp = angular.module("creditxferApp", ["ui.bootstrap", "ui.select"
 
 function CreditxferJsController($scope, dataProvider) {
   var institutionUrl = "api/institutions";
-  var courseUrl = "api/courses";
+  var catalogUrl = "api/catalog";
   $scope.institutions = [];
-  $scope.courses = [];
+  $scope.coursesSourceFiltered = [];
   $scope.subjects = [];
   $scope.available = [];
+  $scope.catalog = [];
   $scope.selected = "";
 
   $scope.init = function() {
@@ -21,28 +22,42 @@ function CreditxferJsController($scope, dataProvider) {
     }, institutionUrl);
 
     dataProvider.loadData(function(response) {
-      $scope.courses = response.data;
-    }, courseUrl)
+      $scope.catalog = response.data;
+    }, catalogUrl)
   }
 
-  $scope.filterSubjects = function(mifValue) {
+  $scope.filterBySourceInstitution = function(source) {
+    console.log(source);
     $scope.subjects = [];
     $scope.available = [];
-    $scope.courses.forEach(function(c) {
+    $scope.catalog.forEach(function(c) {
       $scope.course = c;
-      var s = c.subject;
-      if ($scope.subjects.indexOf(s) < 0 && c.mifValue === mifValue) {
+      if ($scope.coursesSourceFiltered.indexOf(c) < 0 && c.sourceInstitutionCode === source) {
+        $scope.coursesSourceFiltered.push(c);
+      }
+    });
+    $scope.coursesSourceFiltered.sort();
+    $("#target").val("default").selectpicker("refresh");
+  }
+
+  $scope.filterSubjects = function(target) {
+    $scope.subjects = [];
+    $scope.available = [];
+    $scope.coursesSourceFiltered.forEach(function(c) {
+      $scope.course = c;
+      var s = c.subjectCodeEquiv;
+      if ($scope.subjects.indexOf(s) < 0 && c.mifValue === target) {
         $scope.subjects.push(s);
       }
     });
     $scope.subjects.sort();
   }
 
-  $scope.filterCourses = function(mifValue, subject) {
+  $scope.filterCourses = function(subject, target) {
     $scope.available = [];
-    $scope.courses.forEach(function(c) {
+    $scope.coursesSourceFiltered.forEach(function(c) {
       $scope.course = c;
-      if ($scope.available.indexOf(c) < 0 && c.mifValue === mifValue && c.subject === subject) {
+      if ($scope.available.indexOf(c) < 0 && c.subjectCodeEquiv === subject && c.mifValue === target) {
         $scope.available.push(c);
       }
     });
