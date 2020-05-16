@@ -2,6 +2,7 @@
 
 var creditxferApp = angular.module("creditxferApp", ["ui.bootstrap", "ui.select", "ngSanitize", "ngAnimate"]);
 
+
 function CreditxferJsController($scope, dataProvider) {
   var institutionUrl = "api/institutions";
   $scope.institutions = [];

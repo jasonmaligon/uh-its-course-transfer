@@ -3,9 +3,10 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <head th:replace="header :: copy"></head>
 <body ng-app="creditxferApp" ng-controller="CreditxferJsController" data-ng-init="init()">
+
 <nav th:replace="menubar :: copy"></nav>
-<div class="bg-gold pt-3 pb-3 sticky-top">
-      <div class="container search-box" >
+<div class="bg-gold pt-3 pb-3">
+      <div class="container search-box fixed">
         <form class="form-row">
           <div class="form-group col-md-4">
             <label>Transferring from</label>
@@ -49,6 +50,7 @@
       </div>
     </div>
     <!-- main content starts-->
+
     <div class="container pt-3 pb-4">
       <div class="panel-body" >
         <table ng-cloak ng-show="targets.selected && available.length != 0" class="table table-bordered">
@@ -88,7 +90,6 @@
       <div th:replace="course :: copy"></div>
     </div>
     <!-- main content ends-->
-
     <div th:replace="footer :: copy"></div>
 </body>
 </html>
