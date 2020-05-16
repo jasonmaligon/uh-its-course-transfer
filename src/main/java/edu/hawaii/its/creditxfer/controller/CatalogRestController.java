@@ -41,13 +41,41 @@ public class CatalogRestController {
             .body(catalog);
     }
 
+    @GetMapping(value = "/api/catalogGrouped/source/{source}/target/{target}/subject/{subject}")
+    public ResponseEntity<List<CatalogDto>> catalogBySourceGrouped(
+        @PathVariable String source, @PathVariable String target, @PathVariable String subject) {
+        logger.info("Entered REST catalog (source=" + source + ")...");
+        List<CatalogDto> catalog = catalogService.findAllBySourceGrouped(source, target.toUpperCase(), subject.toUpperCase());
+        return ResponseEntity
+            .ok()
+            .body(catalog);
+    }
 
-    @GetMapping(value = "/api/catalog/source/{source}/target/{target}")
-    public ResponseEntity<List<CatalogDto>> catalogBySourceAndTarget(
-        @PathVariable String source,
-        @PathVariable String target) {
-        logger.info("Entered REST catalog (source=" + source + ", target=" + target +")...");
-        List<CatalogDto> catalog = catalogService.findAllBySourceAndTarget(source, target);
+    @GetMapping(value = "/api/catalogNonGrouped/source/{source}/subject/{subject}")
+    public ResponseEntity<List<CatalogDto>> catalogBySourceNonGrouped(
+        @PathVariable String source, @PathVariable String subject) {
+        logger.info("Entered REST catalog nongrouped (source=" + source + ")...");
+        List<CatalogDto> catalog = catalogService.findAllBySourceNonGrouped(source, subject.toUpperCase());
+        return ResponseEntity
+            .ok()
+            .body(catalog);
+    }
+
+    @GetMapping(value = "/api/sourceCatalogBoth/source/{source}/target/{target}/subject/{subject}")
+    public ResponseEntity<List<SourceCatalog>> catalogBySourceBoth(
+        @PathVariable String source, @PathVariable String target, @PathVariable String subject) {
+        logger.info("Entered REST catalog both (source=" + source + ")...");
+        List<SourceCatalog> catalog = catalogService.findAllForBoth(source, target.toUpperCase(), subject.toUpperCase());
+        return ResponseEntity
+            .ok()
+            .body(catalog);
+    }
+
+    @GetMapping(value = "/api/sourceCatalog/source/{source}/subjects")
+    public ResponseEntity<List<String>> catalogSubjects(
+        @PathVariable String source) {
+        logger.info("Entered REST catalog subjects (source=" + source + ")...");
+        List<String> catalog = catalogService.findAllSubjectsBySource(source);
         return ResponseEntity
             .ok()
             .body(catalog);

@@ -5,7 +5,9 @@ import static edu.hawaii.its.creditxfer.repository.specification.InstitutionSpec
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,5 +32,12 @@ public class InstitutionService {
     @Cacheable(value = "institutions")
     public List<Institution> findAll() {
         return institutionRepository.findAll(exclude("Do Not Use"));
+    }
+
+    @Caching(evict = {
+        @CacheEvict(value = "institutions", allEntries = true)
+    })
+    public void evictInstitutionCache() {
+        // Empty.
     }
 }

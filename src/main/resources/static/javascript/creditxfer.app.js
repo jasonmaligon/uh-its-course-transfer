@@ -1,6 +1,6 @@
 "use strict"
 
-var creditxferApp = angular.module("creditxferApp", ["ui.bootstrap", "ui.select", "ngSanitize"]);
+var creditxferApp = angular.module("creditxferApp", ["ui.bootstrap", "ui.select", "ngSanitize", "ngAnimate"]);
 
 function CreditxferJsController($scope, dataProvider) {
   var institutionUrl = "api/institutions";
@@ -9,11 +9,15 @@ function CreditxferJsController($scope, dataProvider) {
   $scope.targets = [];
   $scope.subjects = [];
   $scope.available = [];
+  $scope.courses = [];
   $scope.attributes = [];
-  $scope.catalog = [];
+  $scope.catalogGrouped = [];
+  $scope.catalogNonGrouped = [];
   $scope.selected = "";
   $scope.message = "Loading . . . "
   $scope.loadMessage = true;
+  $scope.states = [];
+  $scope.catalogBoth;
 
   $scope.init = function() {
     $scope.loadData();
@@ -29,13 +33,67 @@ function CreditxferJsController($scope, dataProvider) {
           map.set(i.description, true);
           $scope.sources.push(i);
         }
+        if($scope.states.indexOf(i.stateProvince) < 0) {
+          $scope.states.push(i.stateProvince);
+        }
+      })
+
+      $scope.states.sort();
+
+      $scope.sources.forEach(function(i) {
+        switch(i.code) {
+          case "4867":
+            i.description = "University of Hawaii at Manoa";
+            break;
+          case "4869":
+            i.description = "University of Hawaii at Hilo";
+            break;
+          case "1042":
+            i.description = "University of Hawaii West Oahu";
+            break;
+          case "1801":
+            i.description = "Hawaii Community College";
+            break;
+          case "4350":
+            i.description = "Honolulu Community College";
+            break;
+          case "4377":
+            i.description = "Kapiolani Community College";
+            break;
+          case "4378":
+            i.description = "Kauai Community College";
+            break;
+          case "4410":
+            i.description = "Leeward Community College";
+            break;
+          case "4510":
+            i.description = "Univ of Hawaii Maui College";
+            break;
+          case "4976":
+            i.description = "Windward Community College";
+          default:
+        }
       })
       $scope.load($scope.sources);
+      console.log($scope.institutions)
     }, institutionUrl);
   }
 
-  $scope.loadTargets = function(source) {
+  $scope.loadSubjects = function(source) {
+    $scope.loadMessage = true;
+    $scope.subjects = [];
+    var url = "api/sourceCatalog/source/" + source + "/subjects";
+    dataProvider.loadData(function(response) {
+      $scope.subjects = response.data;
+      $scope.subjects.sort();
+      $scope.load($scope.subjects)
+    }, url);
+  }
+
+  $scope.loadTargets = function(source, subject) {
+    $scope.loadMessage = true;
     $scope.targets = [];
+    $scope.filtered = [];
     const map = new Map();
     $scope.institutions.forEach(function(i) {
       if(!map.has(i.mifDescription) && i.code === source) {
@@ -43,54 +101,107 @@ function CreditxferJsController($scope, dataProvider) {
         $scope.targets.push(i);
       }
     })
-    $scope.targets.sort((a,b) => a.mifDescription.localeCompare(b.mifDescription));;
-  }
 
-  $scope.loadCatalog = function(source, target) {
-    $scope.subjects = [];
-    $scope.available = [];
-    $scope.catalog = [];
-    $scope.loadMessage = true;
-    var catalogUrl = "api/catalog/source/" + source + "/target/" + target;
-    dataProvider.loadData(function(response) {
-      $scope.catalog = response.data;
-      $scope.catalog.forEach(function(c) {
-        var s = c.subjectCodeTrans;
-        if ($scope.subjects.indexOf(s) < 0) {
-          $scope.subjects.push(s);
-        }
-      });
-      $scope.subjects.sort();
-      $scope.load($scope.subjects);
-    }, catalogUrl)
-  }
-
-  $scope.filterCourses = function(subject) {
-    $scope.available = [];
-    $scope.catalog.forEach(function(c) {
-      if ($scope.available.indexOf(c) < 0 && c.subjectCodeTrans === subject) {
-        $scope.available.push(c);
-      }
-    });
-
-    $scope.available.forEach(function(c) {
-      $scope.findConnectedCourseRecursive(c);
+    $scope.filtered = $scope.catalogNonGrouped.filter(function(c) {
+      return c.subjectCodeTrans === subject;
     })
 
-    for(var i = 0; i < $scope.available.length; i++) {
-      if($scope.available[i].sequenceNumber !== 1 && $scope.available[i].sequenceNumber !== null) {
-        $scope.available.splice(i, 1);
-        i -= 1;
+    for(var t = 0; t < $scope.targets.length; t++) {
+      if(!($scope.filtered.some(course => course.mifValue === $scope.targets[t].mifValue))) {
+        $scope.targets.splice(t, 1);
+        t -= 1;
       }
     }
 
-    $scope.available.sort((a,b) => a.courseNumberTrans.localeCompare(b.courseNumberTrans));
+    $scope.targets.sort((a,b) => a.mifDescription.localeCompare(b.mifDescription));
+    $scope.load($scope.targets);
+    console.log($scope.targets);
+  }
+
+  $scope.loadCatalogNonGrouped = function(source, subject) {
+    $scope.filtered = [];
+    $scope.catalogNonGrouped = [];
+    $scope.available = [];
+    $scope.loadMessage = true;
+    var catalogUrl = "api/catalogNonGrouped/source/" + source + "/subject/" + subject;
+    dataProvider.loadData(function(response) {
+      $scope.catalogNonGrouped = response.data;
+      Array.prototype.push.apply($scope.filtered, $scope.catalogNonGrouped);
+      console.log($scope.catalogNonGrouped);
+      $scope.loadTargets(source, subject);
+      $scope.load($scope.catalogNonGrouped);
+    }, catalogUrl)
+  }
+
+  $scope.loadCatalogGrouped = function(source, target, subject) {
+    $scope.catalogGrouped = [];
+    $scope.available = [];
+    $scope.loadMessage = true;
+    var catalogUrl = "api/catalogGrouped/source/" + source + "/target/" + target + "/subject/" + subject;
+    dataProvider.loadData(function(response) {
+      $scope.catalogGrouped = response.data;
+      Array.prototype.push.apply($scope.filtered, $scope.catalogGrouped);
+      console.log($scope.catalogGrouped)
+      $scope.loadCatalogBoth(source, target, subject);
+      $scope.load($scope.catalogGrouped);
+    }, catalogUrl)
+  }
+
+  $scope.loadCatalogBoth = function(source, target, subject) {
+    $scope.catalogBoth = [];
+    $scope.available = [];
+    $scope.loadMessage = true;
+    var catalogUrl = "api/sourceCatalogBoth/source/" + source + "/target/" + target + "/subject/" + subject;
+    dataProvider.loadData(function(response) {
+      $scope.catalogBoth = response.data;
+      $scope.catalogBoth.forEach(function(c) {
+        $scope.catalogGrouped.forEach(function(g) {
+          if(c.transGroupConnector === g.transGroupConnector) {
+            g.courseNumberTrans += "<br/>" + c.courseNumberTrans;
+            g.courseTitleTrans += "<br/>" + c.courseTitleTrans;
+          }
+        })
+      })
+      console.log($scope.catalogBoth)
+      $scope.loadAttributes(source, target, subject);
+      $scope.load($scope.catalogBoth);
+    }, catalogUrl)
+  }
+
+  $scope.filterCourses = function(target) {
+    $scope.available = [];
+    console.log($scope.filtered);
+    $scope.filtered.forEach(function(c) {
+      if ($scope.available.indexOf(c) < 0 && c.mifValue === target) {
+        var filteredAttributes = $scope.filterAttributes(c);
+        $scope.available.push({sourceInstitutionCode: c.sourceInstitutionCode, mifValue: c.mifValue,
+          academicPeriodStart: c.academicPeriodStart, subjectCodeTrans: c.subjectCodeTrans,
+          courseNumberTrans: c.courseNumberTrans, courseTitleTrans: c.courseTitleTrans,
+          equivCourse: [{subject: c.subjectCodeEquiv, course: c.courseNumberEquiv,
+            sequenceNumber: c.sequenceNumber, connector: c.connector} ],
+          equivCreditsUsed: c.equivCreditsUsed, transGroupConnector: c.transGroupConnector,
+          transGroupPrimaryInd: c.transGroupPrimaryInd,
+          attributes: filteredAttributes});
+      }
+    });
+
+    if($scope.available.length > 0) {
+      $scope.available.forEach(function (c) {
+        $scope.findConnectedCourseRecursive(c);
+      })
+
+      $scope.available.sort((a, b) => a.courseNumberTrans.localeCompare(b.courseNumberTrans));
+    }
+    $scope.load($scope.available);
+    console.log($scope.available)
   }
 
   $scope.loadAttributes = function(source, target, subject) {
+    $scope.available = [];
     var attributeUrl = "api/courses/source/" + source + "/target/" + target + "/subject/" + subject;
     dataProvider.loadData(function(response) {
       $scope.attributes = response.data;
+      $scope.filterCourses(target);
     }, attributeUrl)
   }
 
@@ -117,17 +228,11 @@ function CreditxferJsController($scope, dataProvider) {
     return filteredAttributes;
   }
 
-  $scope.findAttribute = function(course) {
-    var filteredAttributes = $scope.filterAttributes(course);
-    return filteredAttributes.length > 0;
-  }
-
   $scope.showCourse = function(course) {
-    var filteredAttributes = $scope.filterAttributes(course);
     $scope.course = course;
 
-    if (filteredAttributes.length > 0) {
-      $scope.courseAttr = filteredAttributes;
+    if (course.attributes.length > 0) {
+      $scope.courseAttr = course.attributes;
       $("#course").modal();
     }
   }
@@ -135,6 +240,7 @@ function CreditxferJsController($scope, dataProvider) {
   $scope.load = function(arr) {
     if (arr.length === 0) {
       $scope.message = "No results.";
+      $scope.loadMessage = true;
     } else {
       $scope.message = "Loading . . .";
       $scope.loadMessage = false;
@@ -142,39 +248,50 @@ function CreditxferJsController($scope, dataProvider) {
   }
 
   $scope.findConnectedCourseRecursive = function(course) {
-    if(course.sequenceNumber === 1) {
-      var values = $scope.findConnectedCourseHelper(course, course.sequenceNumber + 1);
-      course.courseNumberEquiv = values.courseNumber;
-      course.equivCreditsUsed = values.credits;
-    }
+    var values = $scope.findConnectedCourseHelper(course, course.equivCourse[0].sequenceNumber + 1);
+    course.equivCourse = values.equivCourse;
+    course.equivCreditsUsed = values.credits;
   }
 
   $scope.findConnectedCourseHelper = function(course, sequence) {
     $scope.available.forEach(function(c) {
+
       if (c.sourceInstitutionCode === course.sourceInstitutionCode
         && c.mifValue === course.mifValue
         && c.subjectCodeTrans === course.subjectCodeTrans
         && c.courseNumberTrans === course.courseNumberTrans
         && c.courseTitleTrans === course.courseTitleTrans
         && c.academicPeriodStart === course.academicPeriodStart
-        && c.sequenceNumber !== course.sequenceNumber) {
-        if (c.sequenceNumber === sequence) {
-          var values = $scope.findConnectedCourseHelper(c, sequence + 1);
-          if (values.connector === "A") {
-            course.courseNumberEquiv += " and<br/>";
-            course.equivCreditsUsed += values.credits;
-          } else if (values.connector === "O") {
-            course.subjectCodeEquiv += "<br/> or"
-            course.courseNumberEquiv += "<br/><br/>";
-          }
-          course.subjectCodeEquiv += "<br/>" + values.subject;
-          course.courseNumberEquiv += values.courseNumber;
+        && c.transGroupPrimaryInd === course.transGroupPrimaryInd
+        && c.equivCourse[0].sequenceNumber === sequence) {
+        var values = $scope.findConnectedCourseHelper(c, sequence + 1);
+
+        if(values.equivCourse[0].connector === "A") {
+          values.equivCourse[0].connector = "AND";
+          course.equivCreditsUsed += values.credits;
+        } else {
+          values.equivCourse[0].connector = "OR";
+        }
+
+        var includes = false;
+        course.equivCourse.forEach(function(c) {
+          values.equivCourse.forEach(function(v) {
+            if(c.sequenceNumber === v.sequenceNumber && c.connector === v.connector) {
+              includes = true;
+            }
+          })
+        })
+
+        if(!includes) {
+          Array.prototype.push.apply(course.equivCourse, values.equivCourse);
+          $scope.available = $scope.available.filter(function(currentCourse) {
+            return currentCourse !== c;
+          })
         }
       }
     })
-    return {subject: course.subjectCodeEquiv, courseNumber: course.courseNumberEquiv, credits: course.equivCreditsUsed, connector: course.connector};
+    return {equivCourse: course.equivCourse, credits: course.equivCreditsUsed};
   }
-
 
   $scope.headerColor = function(inst) {
     switch(inst) {
@@ -258,7 +375,6 @@ creditxferApp.filter("propsFilter", function() {
   }
 });
 
-
 function FeedbackController($scope){
 
   $scope.submit = function(form) {
@@ -272,3 +388,4 @@ creditxferApp.controller("FeedbackController", FeedbackController);
 angular.module("creditxferApp").config(function() {
   angular.lowercase = angular.$$lowercase;
 });
+

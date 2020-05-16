@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.hawaii.its.creditxfer.service.InstitutionService;
 import edu.hawaii.its.creditxfer.type.Institution;
 
-
 @RestController
 public class InstitutionRestController {
 

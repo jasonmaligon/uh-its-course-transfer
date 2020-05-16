@@ -1,6 +1,5 @@
 package edu.hawaii.its.creditxfer.type;
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;

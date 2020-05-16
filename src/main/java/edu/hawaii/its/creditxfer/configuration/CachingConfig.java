@@ -19,6 +19,10 @@ public class CachingConfig {
         cacheManager.setCaches(Arrays.asList(
                 new ConcurrentMapCache("default"),
                 new ConcurrentMapCache("institutions"),
+                new ConcurrentMapCache("catalogGrouped"),
+                new ConcurrentMapCache("catalogNonGrouped"),
+                new ConcurrentMapCache("catalogBoth"),
+                new ConcurrentMapCache("catalogSubjects"),
                 new ConcurrentMapCache("messages")));
         return cacheManager;
     }

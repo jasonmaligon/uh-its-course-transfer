@@ -76,20 +76,7 @@ public class HomeController {
 
     @GetMapping(value = "/institutions")
     public String institutions() {
-        logger.debug("User at institutions.");
-        return "institutions";
-    }
-
-    @GetMapping(value = "/institutions2")
-    public String institutions2() {
-        logger.debug("User at institutions2.");
         return "institutions2";
-    }
-
-    @GetMapping(value = "/institutions3")
-    public String institutions3() {
-        logger.debug("User at institutions3.");
-        return "institutions3";
     }
 
     @RequestMapping(value = "/denied", method = RequestMethod.GET)
@@ -101,5 +88,4 @@ public class HomeController {
     public String invalid() {
         return "redirect:/";
     }
-
 }

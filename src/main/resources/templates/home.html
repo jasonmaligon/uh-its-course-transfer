@@ -11,36 +11,38 @@
             <label>Transferring from</label>
               <div class="form-group">
               <ui-select ng-cloak ng-model="sources.selected" theme="bootstrap"
-                    ng-change="loadTargets(sources.selected.code)" ng-disabled="sources.length === 0">
+                    ng-change="loadSubjects(sources.selected.code);"
+                    ng-disabled="sources.length === 0">
                 <ui-select-match placeholder="Type your institution">{{$select.selected.description}}</ui-select-match>
-                <ui-select-choices minimum-input-length="4" group-by="'stateProvince'" repeat="item in sources | propsFilter: {description:$select.search} | limitTo: 400" >
+                <ui-select-choices minimum-input-length="4" group-by="'stateProvince'" group-filter="states"
+                  repeat="item in sources | propsFilter: {description:$select.search} | limitTo: 400" >
                   <div ng-bind-html="item.description | highlight: $select.search"></div>
                 </ui-select-choices>
               </ui-select>
               </div>
           </div>
           <div class="col-md-4">
+            <label>Subject</label>
+            <div class="form-group">
+              <ui-select ng-cloak ng-model="subjects.selected" theme="bootstrap" ng-disabled="!sources.selected || subjects.length === 0"
+                ng-change="loadCatalogNonGrouped(sources.selected.code, subjects.selected);">
+                <ui-select-match>{{$select.selected}}</ui-select-match>
+                <ui-select-choices repeat="item in subjects | filter: $select.search " >
+                  <span ng-bind-html="item | highlight: $select.search"></span>
+                </ui-select-choices>
+            </div>
+          </div>
+          <div class="col-md-4">
             <label>Transferring to</label>
             <div class="form-group">
-              <ui-select ng-cloak ng-model="targets.selected" ng-disabled="!sources.selected" theme="bootstrap"
-                ng-change="loadCatalog(sources.selected.code, targets.selected.mifValue);
-                headerColor(targets.selected.mifValue); loadResults();">
+              <ui-select ng-cloak ng-model="targets.selected" ng-disabled="!subjects.selected" theme="bootstrap"
+                ng-change="headerColor(targets.selected.mifValue);
+                loadCatalogGrouped(sources.selected.code, targets.selected.mifValue, subjects.selected)">
                 <ui-select-match placeholder="Select a UH Campus">{{$select.selected.mifDescription}}</ui-select-match>
                 <ui-select-choices repeat="item in targets | filter: $select.search">
                   <div ng-bind-html="item.mifDescription | highlight: $select.search"></div>
                 </ui-select-choices>
               </ui-select>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <label>Subject</label>
-            <div class="form-group">
-              <ui-select ng-cloak ng-model="subjects.selected" theme="bootstrap" ng-disabled="!targets.selected"
-                ng-change="filterCourses(subjects.selected); loadAttributes(sources.selected.code, targets.selected.mifValue, subjects.selected)">
-                <ui-select-match>{{$select.selected}}</ui-select-match>
-                <ui-select-choices repeat="item in subjects | filter: $select.search | limitTo: 400" >
-                  <span ng-bind-html="item | highlight: $select.search"></span>
-                </ui-select-choices>
             </div>
           </div>
         </form>
@@ -49,26 +51,35 @@
     <!-- main content starts-->
     <div class="container pt-3 pb-4">
       <div class="panel-body" >
-        <table ng-cloak ng-show="subjects.selected && available.length != 0" class="table table-bordered">
+        <table ng-cloak ng-show="targets.selected && available.length != 0" class="table table-bordered">
           <thead class="text-white">
           <tr>
-            <th class="bg-nonuh-color" scope="col" width="8%">Subject</th>
-            <th class="bg-nonuh-color" scope="col" width="8%">Course</th>
-            <th class="bg-nonuh-color" scope="col" width="28%">Title</th>
-            <th class="bg-{{color}}" scope="col" width="8%">Subject</th>
-            <th class="bg-{{color}}" scope="col" width="10%">Course</th>
-            <th class="bg-{{color}}" scope="col" width="8%">Credits</th>
+            <th class="bg-nonuh-color" scope="col" width="5%">Subject</th>
+            <th class="bg-nonuh-color" scope="col" width="15%">Course</th>
+            <th class="bg-nonuh-color" scope="col" width="25%">Title</th>
+            <th class="bg-{{color}}" scope="col" width="25%">Subject/Course</th>
+            <th class="bg-{{color}}" scope="col" width="5%">Credits</th>
+            <th class="bg-{{color}}" scope="col" width="5%">Attribute</th>
           </tr>
           </thead>
           <tbody>
-            <tr data-ng-repeat="c in available" ng-class="findAttribute(c) ? 'bg-nonuh-color-hl clickable' : '' " ng-click="showCourse(c)">
+            <tr data-ng-repeat="c in available">
               <td>{{c.subjectCodeTrans}}</td>
-              <td>{{c.courseNumberTrans}}</td>
-              <td>{{c.courseTitleTrans}}</td>
-              <td class="bg-{{color}}-hl" ng-bind-html="c.subjectCodeEquiv"/>
-              <td class="bg-{{color}}-hl" ng-bind-html="c.courseNumberEquiv"/>
+              <td ng-bind-html="c.courseNumberTrans"></td>
+              <td ng-bind-html="c.courseTitleTrans"></td>
+              <td class="bg-{{color}}-hl">
+                <span data-ng-repeat="e in c.equivCourse">
+                  <span style="font-weight:bold" ng-bind-html="e.connector"></span> {{e.subject}} {{e.course}}
+                </span>
+              </td>
               <td class="bg-{{color}}-hl">{{c.equivCreditsUsed}}</td>
-            </tr>
+              <td class="bg-{{color}}-hl">
+                <div data-ng-repeat="a in c.attributes"
+                  title="{{a.equivCourseAttributeDesc}}">
+                    {{a.equivCourseAttribute}}
+                </div>
+              </td>
+            </tr >
           </tbody>
         </table>
         <p ng-show="loadMessage">{{message}}</p>

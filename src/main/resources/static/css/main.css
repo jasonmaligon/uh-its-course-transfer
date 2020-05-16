@@ -215,7 +215,7 @@ p.uh-align-left {
     font-style: normal;
     font-weight: 900;
     letter-spacing: 2.2px;
-    padding-top: 12px;    
+    padding-top: 12px;
 }
 
 .navbar {
@@ -394,32 +394,6 @@ button.redify-link {
 
 }
 
-.typeahead-institutions .dropdown-menu {
-    position: absolute;
-    display: block;
-    min-width: 160px;
-    white-space: nowrap;
-    padding-left: 4px;
-    padding-right: 4px;
-}
-
-.typeahead-institutions .dropdown-menu li {
-    font-size: 16px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-weight: normal;
-}
-
-.typeahead-institutions .dropdown-menu li > a {
-    color: #333;
-    text-decoration: none;
-}
-
-.typeahead-institutions .dropdown-menu li.active {
-    background-color: #eee;
-}
-
 .ui-select-container {
     background-color: white;
     border-radius: 4px;
@@ -448,3 +422,5 @@ button.redify-link {
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
 }
+
+

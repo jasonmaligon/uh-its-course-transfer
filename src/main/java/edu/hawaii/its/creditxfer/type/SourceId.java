@@ -10,6 +10,7 @@ public class SourceId
     private String courseNumberTrans;
     private String mifValue;
     private String academicPeriodStart;
+    private String transGroupConnector;
 
     public String getSourceInstitutionCode() {
         return sourceInstitutionCode;
@@ -51,6 +52,14 @@ public class SourceId
         this.academicPeriodStart = academicPeriodStart;
     }
 
+    public String getTransGroupConnector() {
+        return transGroupConnector;
+    }
+
+    public void setTransGroupConnector(String transGroupConnector) {
+        this.transGroupConnector = transGroupConnector;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -68,7 +77,9 @@ public class SourceId
             return false;
         if (mifValue != null ? !mifValue.equals(sourceId.mifValue) : sourceId.mifValue != null)
             return false;
-        return academicPeriodStart != null ? academicPeriodStart.equals(sourceId.academicPeriodStart) : sourceId.academicPeriodStart == null;
+        if (academicPeriodStart != null ? !academicPeriodStart.equals(sourceId.academicPeriodStart) : sourceId.academicPeriodStart != null)
+            return false;
+        return transGroupConnector != null ? transGroupConnector.equals(sourceId.transGroupConnector) : sourceId.transGroupConnector == null;
     }
 
     @Override
@@ -78,6 +89,7 @@ public class SourceId
         result = 31 * result + (courseNumberTrans != null ? courseNumberTrans.hashCode() : 0);
         result = 31 * result + (mifValue != null ? mifValue.hashCode() : 0);
         result = 31 * result + (academicPeriodStart != null ? academicPeriodStart.hashCode() : 0);
+        result = 31 * result + (transGroupConnector != null ? transGroupConnector.hashCode() : 0);
         return result;
     }
 }
